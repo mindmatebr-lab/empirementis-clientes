@@ -88,7 +88,8 @@ export default async function handler(req, res) {
           text: `Olá, ${nome}! 👋\n\nSeus dados foram recebidos com sucesso pela *Empire Mentis — Consultoria de Educação*. ✅\n\nEm breve nossa equipe entrará em contato para dar andamento ao seu relatório de estágio.\n\nAtenciosamente,\n_Empire Mentis_`
         })
       });
-      log.push(`WhatsApp aluno: ${wppA.status}`);
+      const wppABody = await wppA.text();
+      log.push(`WhatsApp aluno (${numeroAluno}): ${wppA.status} | ${wppABody.slice(0,200)}`);
     }
 
     // 6. WhatsApp Ester
