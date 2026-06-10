@@ -377,8 +377,14 @@ async function submitForm(){
     const email=g("email-aluno");
     const whatsapp=g("whatsapp");
     const resumo=buildSummary();
+    status.textContent="Preparando arquivos...";
+    const arquivos = [];
+    for (const f of [...allFiles.docs, ...allFiles.fotos].slice(0, 5)) {
+      const data = await toBase64(f);
+      arquivos.push({ nome: f.name, data: data, tipo: f.type });
+    }
     status.textContent="Registrando suas informações...";
-    await enviarParaAPI({nome,email,whatsapp,resumo});
+    await enviarParaAPI({nome, email, whatsapp, resumo, arquivos});
     document.getElementById("form-area").style.display="none";
     document.getElementById("success-screen").style.display="block";
     document.querySelector(".prog-fill").style.width="100%";
@@ -413,8 +419,14 @@ async function submitForm(){
     const email=g("email-aluno");
     const whatsapp=g("whatsapp");
     const resumo=buildSummary();
+    status.textContent="Preparando arquivos...";
+    const arquivos = [];
+    for (const f of [...allFiles.docs, ...allFiles.fotos].slice(0, 5)) {
+      const data = await toBase64(f);
+      arquivos.push({ nome: f.name, data: data, tipo: f.type });
+    }
     status.textContent="Registrando suas informações...";
-    await enviarParaAPI({nome,email,whatsapp,resumo});
+    await enviarParaAPI({nome, email, whatsapp, resumo, arquivos});
     document.getElementById("form-area").style.display="none";
     document.getElementById("success-screen").style.display="block";
     document.querySelector(".prog-fill").style.width="100%";
