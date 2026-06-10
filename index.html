@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Estágio | Empire Mentis</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#1A2E1A;--navy-mid:#243B24;--navy-soft:#2E4A2E;
+  --gold:#C9A84C;--gold-light:#E8D5A3;--gold-pale:#F5EDD8;
+  --rose:#C97B84;--rose-light:#F5E2E4;--rose-pale:#FBF0F1;
+  --creme:#FAF6EF;--creme-dark:#F0E9DC;--white:#FFFFFF;
+  --text-dark:#1A2E1A;--text-mid:#3D5440;--text-soft:#6E8870;
+}
+body{font-family:"Inter",sans-serif;background:var(--creme);color:var(--text-dark);min-height:100vh;}
+header{background:var(--navy);padding:2.5rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:"";position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.15),transparent 70%);pointer-events:none;}
+header::after{content:"";position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.10),transparent 70%);pointer-events:none;}
+
+
+
+
+
+
+.header-line{width:80px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:1rem auto;}
+.header-subtitle{font-family:"Playfair Display",serif;font-size:1.15rem;font-style:italic;color:rgba(255,255,255,0.75);position:relative;z-index:1;}
+.brand-name-header{font-family:"Playfair Display",serif;font-size:2.2rem;font-weight:700;color:#fff;letter-spacing:0.04em;position:relative;z-index:1;}
+.brand-name-header span{color:var(--gold);}
+.brand-tag-header{font-size:0.65rem;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-light);margin-top:0.3rem;margin-bottom:0.2rem;position:relative;z-index:1;}
+.prog-wrap{background:var(--navy-mid);height:4px;}
+.prog-fill{height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width .4s ease;width:0%;}
+.step-dots{display:flex;align-items:center;justify-content:center;gap:8px;padding:1.25rem 0 0.5rem;}
+.dot{width:28px;height:28px;border-radius:50%;background:var(--creme-dark);transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:600;color:var(--text-soft);}
+.dot::before{content:attr(data-num);}
+.dot.done{background:var(--gold-pale);color:var(--gold);border:1.5px solid var(--gold);}
+.dot.active{background:var(--navy);color:#fff;width:28px;border-radius:50%;}
+main{max-width:680px;margin:0 auto;padding:1.5rem 1.25rem 4rem;}
+.step{display:none;}.step.active{display:block;}
+.step-badge{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);background:var(--gold-pale);border:1px solid var(--gold-light);padding:0.28rem 0.85rem;border-radius:20px;margin-bottom:0.6rem;}
+.step-title{font-family:"Playfair Display",serif;font-size:1.75rem;font-weight:700;color:var(--navy);line-height:1.2;}
+.step-desc{font-size:0.83rem;color:var(--text-soft);margin-top:0.3rem;font-weight:300;}
+.step-header{margin-bottom:1.5rem;}
+.card{background:var(--white);border:1px solid var(--creme-dark);border-top:3px solid var(--gold);border-radius:12px;padding:1.6rem;margin-bottom:1rem;box-shadow:0 2px 12px rgba(26,46,26,0.06);}
+.field{margin-bottom:1.2rem;}.field:last-child{margin-bottom:0;}
+label{display:block;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-mid);margin-bottom:0.4rem;}
+label .req{color:var(--rose);margin-left:2px;}
+input[type=text],input[type=email],input[type=date],textarea,select{width:100%;background:var(--creme);border:1.5px solid var(--creme-dark);border-radius:8px;padding:0.7rem 1rem;font-family:"Inter",sans-serif;font-size:0.9rem;color:var(--text-dark);outline:none;transition:all .2s;-webkit-appearance:none;}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(201,168,76,0.12);}
+input.invalid,textarea.invalid{border-color:var(--rose);}
+textarea{resize:vertical;min-height:100px;line-height:1.65;}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.error-msg{font-size:0.73rem;color:var(--rose);margin-top:0.3rem;display:none;}
+.section-label{font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
+.section-label::after{content:"";flex:1;height:1px;background:var(--gold-light);}
+.upload-zone{border:2px dashed var(--gold-light);border-radius:10px;padding:1.5rem;text-align:center;background:var(--gold-pale);cursor:pointer;transition:all .2s;position:relative;}
+.upload-zone:hover{border-color:var(--gold);background:var(--white);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;background:none;padding:0;}
+.upload-icon{font-size:2rem;margin-bottom:.5rem;}
+.upload-text{font-size:.85rem;color:var(--text-mid);font-weight:500;}
+.upload-hint{font-size:.72rem;color:var(--text-soft);margin-top:.25rem;}
+.file-list{margin-top:.75rem;display:flex;flex-direction:column;gap:.4rem;}
+.file-tag{display:flex;align-items:center;gap:.5rem;background:var(--rose-pale);border:1px solid var(--rose-light);border-radius:6px;padding:.35rem .7rem;font-size:.78rem;color:var(--rose);}
+.file-tag-remove{margin-left:auto;cursor:pointer;color:var(--rose);font-size:1rem;background:none;border:none;padding:0;line-height:1;}
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;gap:1rem;}
+.btn-back{font-family:"Inter",sans-serif;font-size:.85rem;font-weight:400;color:var(--text-soft);background:none;border:none;cursor:pointer;padding:.65rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.btn-back:hover{color:var(--text-mid);}
+.btn-next{font-family:"Inter",sans-serif;font-size:.88rem;font-weight:600;color:var(--white);background:var(--navy);border:none;border-radius:8px;padding:.75rem 2rem;cursor:pointer;letter-spacing:.04em;transition:all .2s;display:flex;align-items:center;gap:.4rem;}
+.btn-next:hover{background:var(--navy-soft);}.btn-next:active{transform:scale(.98);}
+.btn-submit{font-family:"Inter",sans-serif;font-size:.88rem;font-weight:600;color:var(--navy);background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:8px;padding:.75rem 2.2rem;cursor:pointer;letter-spacing:.04em;transition:all .2s;display:flex;align-items:center;gap:.5rem;}
+.btn-submit:hover{opacity:.9;}.btn-submit:active{transform:scale(.98);}.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+#success-screen{display:none;text-align:center;padding:3rem 1.5rem;}
+.success-ring{width:80px;height:80px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:2.2rem;}
+.success-title{font-family:"Playfair Display",serif;font-size:2rem;font-weight:700;color:var(--navy);margin-bottom:.75rem;}
+.success-msg{font-size:.9rem;color:var(--text-mid);line-height:1.8;max-width:380px;margin:0 auto;}
+.success-tag{display:inline-block;margin-top:1.5rem;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-light);padding:.3rem 1rem;border-radius:20px;}
+.spinner{width:16px;height:16px;border:2px solid rgba(26,46,26,0.2);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#send-status{font-size:.8rem;color:var(--text-soft);text-align:center;margin-top:.75rem;min-height:1.2rem;}
+footer{text-align:center;padding:1.5rem;font-size:.7rem;color:var(--text-soft);border-top:1px solid var(--creme-dark);letter-spacing:.06em;}
+@media(max-width:480px){.row-2{grid-template-columns:1fr;}.brand-name{font-size:1.5rem;}.step-title{font-size:1.45rem;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand-name-header">Empire <span>Mentis</span></div>
+  <div class="brand-tag-header">Consultoria de Educação</div>
+  <div class="header-line"></div>
+  <div class="header-subtitle">Formulário de Relatório de Estágio</div>
+</header>
+<div class="prog-wrap"><div class="prog-fill" id="progressBar"></div></div>
+<main>
+  <div id="form-area">
+    <div class="step-dots" id="stepDots"></div>
+
+    <div class="step active" id="step-1">
+      <div class="step-header">
+        <div class="step-badge">✦ Etapa 1 de 4</div>
+        <div class="step-title">Dados do Aluno</div>
+        <div class="step-desc">Informações para identificação no relatório acadêmico</div>
+      </div>
+      <div class="card">
+        <div class="section-label">Identificação</div>
+        <div class="field">
+          <label>Nome completo <span class="req">*</span></label>
+          <input type="text" id="nome" placeholder="Seu nome completo">
+          <div class="error-msg" id="err-nome">Por favor, preencha seu nome.</div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Matrícula <span class="req">*</span></label>
+            <input type="text" id="matricula" placeholder="Ex: 2024001234">
+            <div class="error-msg" id="err-matricula">Campo obrigatório.</div>
+          </div>
+          <div class="field">
+            <label>Curso <span class="req">*</span></label>
+            <input type="text" id="curso" placeholder="Ex: Odontologia">
+            <div class="error-msg" id="err-curso">Campo obrigatório.</div>
+          </div>
+        </div>
+        <div class="section-label" style="margin-top:1rem;">Instituição</div>
+        <div class="field">
+          <label>Nome da IES / Polo <span class="req">*</span></label>
+          <input type="text" id="ies" placeholder="Nome da instituição e polo">
+          <div class="error-msg" id="err-ies">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Disciplina e código <span class="req">*</span></label>
+          <input type="text" id="disciplina" placeholder="Ex: EST001 — Estágio Supervisionado I">
+          <div class="error-msg" id="err-disciplina">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Nome do tutor / docente <span class="req">*</span></label>
+          <input type="text" id="tutor" placeholder="Nome completo do professor responsável">
+          <div class="error-msg" id="err-tutor">Campo obrigatório.</div>
+        </div>
+      </div>
+      <div class="nav-row"><span></span><button class="btn-next" onclick="nextStep(1)">Próximo →</button></div>
+    </div>
+
+    <div class="step" id="step-2">
+      <div class="step-header">
+        <div class="step-badge">✦ Etapa 2 de 4</div>
+        <div class="step-title">Local do Estágio</div>
+        <div class="step-desc">Informações sobre onde o estágio foi realizado</div>
+      </div>
+      <div class="card">
+        <div class="section-label">Empresa / Clínica</div>
+        <div class="field">
+          <label>Nome da empresa / clínica <span class="req">*</span></label>
+          <input type="text" id="empresa" placeholder="Nome completo do local de estágio">
+          <div class="error-msg" id="err-empresa">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Setor ou área de atuação <span class="req">*</span></label>
+          <input type="text" id="setor" placeholder="Ex: Clínica de Odontologia Geral">
+          <div class="error-msg" id="err-setor">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Cidade / Estado <span class="req">*</span></label>
+          <input type="text" id="cidade" placeholder="Ex: Rio de Janeiro / RJ">
+          <div class="error-msg" id="err-cidade">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Descrição breve do local <span class="req">*</span></label>
+          <textarea id="desc-empresa" placeholder="O que a empresa faz, público atendido, principais serviços e missão..."></textarea>
+          <div class="error-msg" id="err-desc-empresa">Campo obrigatório.</div>
+        </div>
+        <div class="section-label" style="margin-top:1rem;">Período</div>
+        <div class="row-2">
+          <div class="field">
+            <label>Data de início <span class="req">*</span></label>
+            <input type="date" id="data-inicio">
+            <div class="error-msg" id="err-data-inicio">Campo obrigatório.</div>
+          </div>
+          <div class="field">
+            <label>Data de término <span class="req">*</span></label>
+            <input type="date" id="data-fim">
+            <div class="error-msg" id="err-data-fim">Campo obrigatório.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Carga horária total <span class="req">*</span></label>
+          <input type="text" id="carga-horaria" placeholder="Ex: 160 horas">
+          <div class="error-msg" id="err-carga-horaria">Campo obrigatório.</div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="prevStep(2)">← Voltar</button>
+        <button class="btn-next" onclick="nextStep(2)">Próximo →</button>
+      </div>
+    </div>
+
+    <div class="step" id="step-3">
+      <div class="step-header">
+        <div class="step-badge">✦ Etapa 3 de 4</div>
+        <div class="step-title">Atividades & Conclusão</div>
+        <div class="step-desc">Descreva as experiências vivenciadas no estágio</div>
+      </div>
+      <div class="card">
+        <div class="section-label">Atividades realizadas</div>
+        <div class="field">
+          <label>Principais atividades realizadas <span class="req">*</span></label>
+          <textarea id="atividades" placeholder="Descreva as atividades de observação, coparticipação e participação durante o estágio..." style="min-height:130px;"></textarea>
+          <div class="error-msg" id="err-atividades">Campo obrigatório.</div>
+        </div>
+        <div class="section-label" style="margin-top:1rem;">Reflexão final</div>
+        <div class="field">
+          <label>O que aprendeu e como contribuiu para sua formação <span class="req">*</span></label>
+          <textarea id="conclusao" placeholder="Relate as lições aprendidas, críticas, sugestões e como o estágio prepara você para os desafios futuros..." style="min-height:130px;"></textarea>
+          <div class="error-msg" id="err-conclusao">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Possui preferência de referências bibliográficas?</label>
+          <div style="display:flex;gap:1rem;margin-top:0.3rem;">
+            <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;font-size:0.9rem;font-weight:400;letter-spacing:0;color:var(--text-dark);cursor:pointer;">
+              <input type="radio" name="ref-opcao" id="ref-sim" value="sim" onchange="toggleReferencias()" style="width:auto;accent-color:var(--gold);"> Sim
+            </label>
+            <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;font-size:0.9rem;font-weight:400;letter-spacing:0;color:var(--text-dark);cursor:pointer;">
+              <input type="radio" name="ref-opcao" id="ref-nao" value="nao" onchange="toggleReferencias()" style="width:auto;accent-color:var(--gold);" checked> Não
+            </label>
+          </div>
+        </div>
+        <div class="field" id="campo-referencias" style="display:none;">
+          <label>Quais referências você indica?</label>
+          <textarea id="referencias" placeholder="Informe os autores, livros ou artigos que deseja que sejam utilizados..." style="min-height:90px;"></textarea>
+        </div>
+        <div class="section-label" style="margin-top:1rem;">Relato pessoal</div>
+        <div class="field">
+          <label>Conte com suas próprias palavras sua experiência no estágio <span class="req">*</span></label>
+          <textarea id="relato-pessoal" placeholder="Descreva com suas próprias palavras como foi a experiência, o que você vivenciou no dia a dia, o que mais marcou, como se sentiu, o que aprendeu de verdade e como isso impacta sua visão profissional..." style="min-height:160px;"></textarea>
+          <div class="error-msg" id="err-relato-pessoal">Por favor, escreva seu relato pessoal.</div>
+        </div>
+        <div class="field">
+          <label>Observações ou exigências sobre o trabalho</label>
+          <textarea id="observacoes" placeholder="Tem alguma solicitação especial, exigência ou observação sobre como deseja que seu relatório seja elaborado? Escreva aqui..." style="min-height:100px;"></textarea>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="prevStep(3)">← Voltar</button>
+        <button class="btn-next" onclick="nextStep(3)">Próximo →</button>
+      </div>
+    </div>
+
+    <div class="step" id="step-4">
+      <div class="step-header">
+        <div class="step-badge">✦ Etapa 4 de 4</div>
+        <div class="step-title">Anexos & Envio</div>
+        <div class="step-desc">Envie os documentos obrigatórios do seu estágio</div>
+      </div>
+      <div class="card">
+        <div class="section-label">Contato</div>
+        <div class="field">
+          <label>Seu e-mail <span class="req">*</span></label>
+          <input type="email" id="email-aluno" placeholder="seuemail@exemplo.com">
+          <div class="error-msg" id="err-email-aluno">Insira um e-mail válido.</div>
+        </div>
+        <div class="field">
+          <label>WhatsApp <span class="req">*</span></label>
+          <input type="text" id="whatsapp" placeholder="(DDD) 00000-0000">
+          <div class="error-msg" id="err-whatsapp">Por favor, informe seu WhatsApp.</div>
+        </div>
+        <div class="section-label" style="margin-top:1rem;">Documentos</div>
+        <div class="field">
+          <label>Documentos obrigatórios (TCE, Frequência, Avaliação...)</label>
+          <div class="upload-zone">
+            <input type="file" id="files-docs" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFiles(this,'list-docs','docs')">
+            <div class="upload-icon">📎</div>
+            <div class="upload-text">Clique ou arraste os arquivos aqui</div>
+            <div class="upload-hint">PDF, Word, JPG — até 10MB por arquivo</div>
+          </div>
+          <div class="file-list" id="list-docs"></div>
+        </div>
+        <div class="field">
+          <label>Fotos / Registros das atividades (opcional)</label>
+          <div class="upload-zone">
+            <input type="file" id="files-fotos" multiple accept=".jpg,.jpeg,.png" onchange="handleFiles(this,'list-fotos','fotos')">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Imagens para enriquecer o relatório</div>
+            <div class="upload-hint">JPG, PNG — até 10MB por arquivo</div>
+          </div>
+          <div class="file-list" id="list-fotos"></div>
+        </div>
+      </div>
+      <div id="send-status"></div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="prevStep(4)">← Voltar</button>
+        <button class="btn-submit" id="btn-enviar" onclick="submitForm()">
+          <span id="btn-text">Concluir e Enviar</span>
+          <div class="spinner" id="btn-spinner"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="success-screen">
+    <div class="success-ring">✦</div>
+    <div class="success-title">Enviado com sucesso!</div>
+    <div class="success-msg">Seus dados e documentos foram recebidos.<br>Em breve seu relatório será elaborado pela equipe Empire Mentis.</div>
+    <div class="success-tag">Empire Mentis · Consultoria de Educação</div>
+  </div>
+</main>
+<footer>© 2026 Empire Mentis — Consultoria de Educação &nbsp;·&nbsp; Todos os direitos reservados</footer>
+
+<script>
+
+const TOTAL=4;let current=1;
+const allFiles={docs:[],fotos:[]};
+function buildDots(){const w=document.getElementById("stepDots");w.innerHTML="";for(let i=1;i<=TOTAL;i++){const d=document.createElement("div");d.className="dot"+(i===current?" active":i<current?" done":"");d.setAttribute("data-num",i);w.appendChild(d);}}
+function updateProgress(){document.getElementById("progressBar").style.width=(((current-1)/(TOTAL-1))*100)+"%";buildDots();}
+updateProgress();
+function showStep(n){document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));document.getElementById("step-"+n).classList.add("active");current=n;updateProgress();window.scrollTo({top:0,behavior:"smooth"});}
+const stepFields={1:[{id:"nome",err:"err-nome"},{id:"matricula",err:"err-matricula"},{id:"curso",err:"err-curso"},{id:"ies",err:"err-ies"},{id:"disciplina",err:"err-disciplina"},{id:"tutor",err:"err-tutor"}],2:[{id:"empresa",err:"err-empresa"},{id:"setor",err:"err-setor"},{id:"cidade",err:"err-cidade"},{id:"desc-empresa",err:"err-desc-empresa"},{id:"data-inicio",err:"err-data-inicio"},{id:"data-fim",err:"err-data-fim"},{id:"carga-horaria",err:"err-carga-horaria"}],3:[{id:"atividades",err:"err-atividades"},{id:"conclusao",err:"err-conclusao"},{id:"relato-pessoal",err:"err-relato-pessoal"}],4:[{id:"email-aluno",err:"err-email-aluno",type:"email"},{id:"whatsapp",err:"err-whatsapp"}]};
+function validateStep(n){let ok=true;(stepFields[n]||[]).forEach(f=>{const el=document.getElementById(f.id);const err=document.getElementById(f.err);const v=el.value.trim();let valid=v.length>0;if(f.type==="email")valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);if(!valid){el.classList.add("invalid");err.style.display="block";ok=false;}else{el.classList.remove("invalid");err.style.display="none";}});return ok;}
+function nextStep(n){if(validateStep(n))showStep(n+1);}
+function prevStep(n){showStep(n-1);}
+function handleFiles(input,listId,key){Array.from(input.files).forEach(f=>{if(!allFiles[key].find(x=>x.name===f.name))allFiles[key].push(f);});renderList(listId,key);}
+function renderList(listId,key){const list=document.getElementById(listId);list.innerHTML="";allFiles[key].forEach((f,i)=>{const tag=document.createElement("div");tag.className="file-tag";tag.innerHTML=`<span>📄</span><span>${f.name}</span><button class="file-tag-remove" onclick="removeFile('${key}',${i},'${listId}')">×</button>`;list.appendChild(tag);});}
+function removeFile(key,idx,listId){allFiles[key].splice(idx,1);renderList(listId,key);}
+function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=rej;r.readAsDataURL(file);});}
+function g(id){return document.getElementById(id).value.trim();}
+function buildSummary(){return `RELATÓRIO DE ESTÁGIO — EMPIRE MENTIS
+========================================
+ALUNO
+Nome: ${g("nome")} | Matrícula: ${g("matricula")} | Curso: ${g("curso")}
+IES/Polo: ${g("ies")} | Disciplina: ${g("disciplina")} | Tutor: ${g("tutor")}
+
+LOCAL DO ESTÁGIO
+Empresa: ${g("empresa")} | Setor: ${g("setor")} | Cidade: ${g("cidade")}
+Período: ${g("data-inicio")} a ${g("data-fim")} | Carga horária: ${g("carga-horaria")}
+Descrição: ${g("desc-empresa")}
+
+ATIVIDADES
+${g("atividades")}
+
+CONCLUSÃO
+${g("conclusao")}
+
+RELATO PESSOAL DO ALUNO
+${g("relato-pessoal")}
+
+OBSERVAÇÕES / EXIGÊNCIAS
+${g("observacoes")||"Nenhuma"}
+
+REFERÊNCIAS
+${document.getElementById("ref-sim").checked ? (g("referencias")||"Sim, mas não informou quais") : "Não possui preferência"}
+
+E-mail do aluno: ${g("email-aluno")}
+WhatsApp: ${g("whatsapp")}
+Docs: ${allFiles.docs.map(f=>f.name).join(", ")||"Nenhum"}
+Fotos: ${allFiles.fotos.map(f=>f.name).join(", ")||"Nenhuma"}`;}
+function toggleReferencias(){
+  const sim = document.getElementById("ref-sim").checked;
+  document.getElementById("campo-referencias").style.display = sim ? "block" : "none";
+}
+async function submitForm(){
+  if(!validateStep(4))return;
+  const btn=document.getElementById("btn-enviar");
+  const spinner=document.getElementById("btn-spinner");
+  const btnText=document.getElementById("btn-text");
+  const status=document.getElementById("send-status");
+  btn.disabled=true;spinner.style.display="block";btnText.textContent="Enviando...";status.textContent="Preparando os dados...";
+  try{
+    const docsB64=[];
+    for(const f of allFiles.docs.slice(0,3)){docsB64.push({name:f.name,data:await toBase64(f)});}
+    await emailjs.send("service_empirementis","template_estagio",{
+      to_email:"esterlima@empirementis.com",
+      aluno_nome:g("nome"),aluno_email:g("email-aluno"),aluno_whatsapp:g("whatsapp"),
+      resumo:buildSummary(),
+      arquivo1_nome:docsB64[0]?.name||"",arquivo1_data:docsB64[0]?.data||"",
+      arquivo2_nome:docsB64[1]?.name||"",arquivo2_data:docsB64[1]?.data||"",
+      arquivo3_nome:docsB64[2]?.name||"",arquivo3_data:docsB64[2]?.data||"",
+      total_docs:allFiles.docs.length,total_fotos:allFiles.fotos.length
+    });
+    document.getElementById("form-area").style.display="none";
+    document.getElementById("success-screen").style.display="block";
+    document.querySelector(".prog-fill").style.width="100%";
+  }catch(err){
+    console.error(err);
+    status.textContent="⚠️ Erro ao enviar. Verifique sua conexão e tente novamente.";
+    btn.disabled=false;spinner.style.display="none";btnText.textContent="Enviar Relatório";
+  }
+}
+</script>
+</body>
+</html>
