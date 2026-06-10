@@ -9,6 +9,7 @@ export default async function handler(req, res) {
   const CHATWOOT_URL = "https://modernraven-chatwoot.cloudfy.live";
   const CHATWOOT_TOKEN = "k5zEFWS7VFAQrxxbzEvvN1rY";
   const ACCOUNT_ID = 1;
+  const INBOX_ID = 4;
   const EVOLUTION_URL = "https://warmbloodedmanatee-evolution.cloudfy.live";
   const EVOLUTION_KEY = "C9CF92963660-4B6B-8376-ADD175AD3BD0";
   const EVOLUTION_INSTANCE = "CENTRAL DE ATENDIMENTO COMERCIAL - ESTER LO,A";
@@ -20,53 +21,38 @@ export default async function handler(req, res) {
     const { nome, email, whatsapp, resumo } = req.body;
     log.push(`Dados: ${nome} / ${email}`);
 
-    const telefone = "+" + whatsapp.replace(/\D/g, "").replace(/^0/, "55");
-
-    // 1. Buscar contato existente primeiro
-    let contactId;
-    const searchRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts/search?q=${encodeURIComponent(email)}&include_contacts=true`, {
-      headers: { "api_access_token": CHATWOOT_TOKEN }
+    // 1. Criar contato novo sempre (com nome único por timestamp)
+    const contactRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts`, {
+      method: "POST",
+      headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
+      body: JSON.stringify({ name: nome, email: `${Date.now()}_${email}` })
     });
-    const searchData = await searchRes.json();
-    log.push(`Busca contato status: ${searchRes.status}`);
+    const contactData = await contactRes.json();
+    log.push(`Contato: ${contactRes.status} | ${JSON.stringify(contactData).slice(0,150)}`);
 
-    if (searchData.payload && searchData.payload.length > 0) {
-      contactId = searchData.payload[0].id;
-      log.push(`Contato existente ID: ${contactId}`);
-    } else {
-      // Criar contato novo sem telefone para evitar erro de formato
-      const newContact = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts`, {
-        method: "POST",
-        headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
-        body: JSON.stringify({ name: nome, email: email })
-      });
-      const newContactData = await newContact.json();
-      log.push(`Criar contato status: ${newContact.status} | Resposta: ${JSON.stringify(newContactData).slice(0,200)}`);
-      
-      // O ID pode vir em lugares diferentes dependendo da versão do Chatwoot
-      contactId = newContactData.id || newContactData?.payload?.contact?.id;
-      log.push(`Contact ID: ${contactId}`);
-    }
-
-    if (!contactId) throw new Error(`Contact ID não encontrado`);
+    const contactId = contactData.id || contactData?.payload?.contact?.id;
+    if (!contactId) throw new Error(`Contact ID nulo: ${JSON.stringify(contactData).slice(0,200)}`);
+    log.push(`Contact ID: ${contactId}`);
 
     // 2. Criar conversa
+    const convBody = { inbox_id: INBOX_ID, contact_id: contactId };
+    log.push(`Criando conversa: ${JSON.stringify(convBody)}`);
     const convRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify({ inbox_id: 4, contact_id: contactId })
+      body: JSON.stringify(convBody)
     });
     const convData = await convRes.json();
-    const convId = convData.id;
-    log.push(`Conversa status: ${convRes.status} | ID: ${convId}`);
+    log.push(`Conversa: ${convRes.status} | ${JSON.stringify(convData).slice(0,150)}`);
 
-    if (!convId) throw new Error(`Conv ID não encontrado: ${JSON.stringify(convData).slice(0,200)}`);
+    const convId = convData.id;
+    if (!convId) throw new Error(`Conv ID nulo: ${JSON.stringify(convData).slice(0,300)}`);
 
     // 3. Enviar mensagem
     await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations/${convId}/messages`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify({ content: resumo, message_type: "incoming", private: false })
+      body: JSON.stringify({ content: `📋 *${nome}* | ${email} | ${whatsapp}\n\n${resumo}`, message_type: "incoming", private: false })
     });
     log.push(`Mensagem enviada`);
 
@@ -95,7 +81,7 @@ export default async function handler(req, res) {
     });
     log.push(`WhatsApp Ester: ${wppE.status}`);
 
-    console.log("LOG:", log.join(" | "));
+    console.log("SUCESSO:", log.join(" | "));
     return res.status(200).json({ success: true, log });
 
   } catch (err) {
