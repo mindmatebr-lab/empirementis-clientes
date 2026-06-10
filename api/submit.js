@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const CHATWOOT_URL = "https://modernraven-chatwoot.cloudfy.live";
-  const CHATWOOT_TOKEN = "tAvYfGTrTAtwOhIrUDlt4C8szXZqWMUH";
+  const CHATWOOT_TOKEN = "k5zEFWS7VFAQrxxbzEvvN1rY";
   const ACCOUNT_ID = 1;
   const EVOLUTION_URL = "https://warmbloodedmanatee-evolution.cloudfy.live";
   const EVOLUTION_KEY = "C9CF92963660-4B6B-8376-ADD175AD3BD0";
