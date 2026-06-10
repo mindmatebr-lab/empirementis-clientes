@@ -25,7 +25,11 @@ export default async function handler(req, res) {
     const newContact = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify({ name: nome, email: email, phone_number: whatsapp })
+      body: JSON.stringify({ 
+        name: nome, 
+        email: email, 
+        phone_number: "+" + whatsapp.replace(/\D/g, "").replace(/^0/, "55")
+      })
     });
     const contactData = await newContact.json();
     log.push(`Contato status: ${newContact.status} | ID: ${contactData.id} | Erro: ${JSON.stringify(contactData.errors || null)}`);
