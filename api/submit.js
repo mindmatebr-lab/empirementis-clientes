@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     const convRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify({ inbox_id: 1, contact_id: contactId })
+      body: JSON.stringify({ inbox_id: 4, contact_id: contactId })
     });
     const convData = await convRes.json();
     const convId = convData.id;
