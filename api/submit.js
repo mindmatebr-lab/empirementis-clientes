@@ -1,3 +1,10 @@
+export const config = { api: { bodyParser: false } };
+
+import formidable from "formidable";
+import fs from "fs";
+import fetch from "node-fetch";
+import FormData from "form-data";
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -18,47 +25,65 @@ export default async function handler(req, res) {
   const log = [];
 
   try {
-    const { nome, email, whatsapp, resumo } = req.body;
+    const { nome, email, whatsapp, resumo, arquivos } = req.body;
     log.push(`Dados: ${nome} / ${email}`);
 
-    // 1. Criar contato novo sempre (com nome único por timestamp)
+    // 1. Criar contato
     const contactRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
       body: JSON.stringify({ name: nome, email: `${Date.now()}_${email}` })
     });
     const contactData = await contactRes.json();
-    log.push(`Contato: ${contactRes.status} | ${JSON.stringify(contactData).slice(0,150)}`);
-
     const contactId = contactData.id || contactData?.payload?.contact?.id;
-    if (!contactId) throw new Error(`Contact ID nulo: ${JSON.stringify(contactData).slice(0,200)}`);
+    if (!contactId) throw new Error(`Contact ID nulo`);
     log.push(`Contact ID: ${contactId}`);
 
     // 2. Criar conversa
-    const convBody = { inbox_id: INBOX_ID, contact_id: contactId };
-    log.push(`Criando conversa: ${JSON.stringify(convBody)}`);
     const convRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify(convBody)
+      body: JSON.stringify({ inbox_id: INBOX_ID, contact_id: contactId })
     });
     const convData = await convRes.json();
-    log.push(`Conversa: ${convRes.status} | ${JSON.stringify(convData).slice(0,150)}`);
-
     const convId = convData.id;
-    if (!convId) throw new Error(`Conv ID nulo: ${JSON.stringify(convData).slice(0,300)}`);
+    if (!convId) throw new Error(`Conv ID nulo`);
+    log.push(`Conv ID: ${convId}`);
 
-    // 3. Enviar mensagem
+    // 3. Enviar resumo como mensagem
     await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations/${convId}/messages`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
       body: JSON.stringify({ content: `📋 *${nome}* | ${email} | ${whatsapp}\n\n${resumo}`, message_type: "incoming", private: false })
     });
-    log.push(`Mensagem enviada`);
+    log.push(`Mensagem de texto enviada`);
 
-    // 4. WhatsApp aluno
-    const numeroAluno = whatsapp.replace(/\D/g, "").replace(/^0/, "55");
-    if (numeroAluno.length >= 10) {
+    // 4. Enviar anexos se existirem (base64)
+    if (arquivos && arquivos.length > 0) {
+      for (const arq of arquivos) {
+        try {
+          const buffer = Buffer.from(arq.data, "base64");
+          const formData = new FormData();
+          formData.append("content", `📎 Anexo: ${arq.nome}`);
+          formData.append("message_type", "incoming");
+          formData.append("attachments[]", buffer, { filename: arq.nome, contentType: arq.tipo || "application/octet-stream" });
+
+          const anexoRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations/${convId}/messages`, {
+            method: "POST",
+            headers: { "api_access_token": CHATWOOT_TOKEN, ...formData.getHeaders() },
+            body: formData
+          });
+          log.push(`Anexo ${arq.nome}: ${anexoRes.status}`);
+        } catch(e) {
+          log.push(`Erro anexo ${arq.nome}: ${e.message}`);
+        }
+      }
+    }
+
+    // 5. WhatsApp aluno
+    let numeroAluno = whatsapp.replace(/\D/g, "");
+    if (!numeroAluno.startsWith("55")) numeroAluno = "55" + numeroAluno;
+    if (numeroAluno.length >= 12) {
       const wppA = await fetch(`${EVOLUTION_URL}/message/sendText/${encodeURIComponent(EVOLUTION_INSTANCE)}`, {
         method: "POST",
         headers: { "apikey": EVOLUTION_KEY, "Content-Type": "application/json" },
@@ -70,13 +95,13 @@ export default async function handler(req, res) {
       log.push(`WhatsApp aluno: ${wppA.status}`);
     }
 
-    // 5. WhatsApp Ester
+    // 6. WhatsApp Ester
     const wppE = await fetch(`${EVOLUTION_URL}/message/sendText/${encodeURIComponent(EVOLUTION_INSTANCE)}`, {
       method: "POST",
       headers: { "apikey": EVOLUTION_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({
         number: MEU_NUMERO,
-        text: `📋 *Novo Formulário de Estágio!*\n\n*Aluno:* ${nome}\n*WhatsApp:* ${whatsapp}\n*E-mail:* ${email}\n\nAcesse o Chatwoot para ver todas as respostas.\n\n_Empire Mentis_`
+        text: `📋 *Novo Formulário de Estágio!*\n\n*Aluno:* ${nome}\n*WhatsApp:* ${whatsapp}\n*E-mail:* ${email}\n*Anexos:* ${arquivos ? arquivos.length : 0} arquivo(s)\n\nAcesse o Chatwoot para ver tudo.\n\n_Empire Mentis_`
       })
     });
     log.push(`WhatsApp Ester: ${wppE.status}`);
