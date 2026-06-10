@@ -355,6 +355,16 @@ function toggleReferencias(){
   const sim = document.getElementById("ref-sim").checked;
   document.getElementById("campo-referencias").style.display = sim ? "block" : "none";
 }
+async function enviarParaAPI(dados) {
+  const res = await fetch("/api/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados)
+  });
+  if (!res.ok) throw new Error("Erro na API");
+  return res.json();
+}
+
 async function submitForm(){
   if(!validateStep(4))return;
   const btn=document.getElementById("btn-enviar");
@@ -380,7 +390,8 @@ async function submitForm(){
 }
 </script>
 </body>
-</htmlasync function enviarParaAPI(dados) {
+</html
+async function enviarParaAPI(dados) {
   const res = await fetch("/api/submit", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
