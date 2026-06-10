@@ -9,6 +9,7 @@ export default async function handler(req, res) {
   const CHATWOOT_URL = "https://modernraven-chatwoot.cloudfy.live";
   const CHATWOOT_TOKEN = "tAvYfGTrTAtwOhIrUDlt4C8szXZqWMUH";
   const ACCOUNT_ID = 1;
+  const INBOX_ID = 1; // ID fixo da inbox FORMULÁRIO DE ESTÁGIO
   const EVOLUTION_URL = "https://warmbloodedmanatee-evolution.cloudfy.live";
   const EVOLUTION_KEY = "C9CF92963660-4B6B-8376-ADD175AD3BD0";
   const EVOLUTION_INSTANCE = "CENTRAL DE ATENDIMENTO COMERCIAL - ESTER LO,A";
@@ -17,16 +18,19 @@ export default async function handler(req, res) {
   try {
     const { nome, email, whatsapp, resumo } = req.body;
 
-    // 1. Buscar ou criar contato no Chatwoot
+    // 1. Buscar ou criar contato
     let contactId;
-    const searchRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts/search?q=${encodeURIComponent(email)}&include_contacts=true`, {
-      headers: { "api_access_token": CHATWOOT_TOKEN }
-    });
-    const searchData = await searchRes.json();
+    try {
+      const searchRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts/search?q=${encodeURIComponent(email)}&include_contacts=true`, {
+        headers: { "api_access_token": CHATWOOT_TOKEN }
+      });
+      const searchData = await searchRes.json();
+      if (searchData.payload && searchData.payload.length > 0) {
+        contactId = searchData.payload[0].id;
+      }
+    } catch(e) {}
 
-    if (searchData.payload && searchData.payload.length > 0) {
-      contactId = searchData.payload[0].id;
-    } else {
+    if (!contactId) {
       const newContact = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/contacts`, {
         method: "POST",
         headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
@@ -36,19 +40,12 @@ export default async function handler(req, res) {
       contactId = newContactData.id;
     }
 
-    // 2. Buscar inbox API
-    const inboxRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/inboxes`, {
-      headers: { "api_access_token": CHATWOOT_TOKEN }
-    });
-    const inboxData = await inboxRes.json();
-    const inbox = inboxData.payload.find(i => i.channel_type === "Channel::Api") || inboxData.payload[0];
-
-    // 3. Criar conversa
+    // 2. Criar conversa com INBOX_ID fixo
     const convRes = await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
       body: JSON.stringify({
-        inbox_id: inbox.id,
+        inbox_id: INBOX_ID,
         contact_id: contactId,
         additional_attributes: { initiated_at: { title: "Formulário de Estágio — Empire Mentis" } }
       })
@@ -56,14 +53,14 @@ export default async function handler(req, res) {
     const convData = await convRes.json();
     const convId = convData.id;
 
-    // 4. Enviar resumo
+    // 3. Enviar resumo
     await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations/${convId}/messages`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
       body: JSON.stringify({ content: resumo, message_type: "incoming", private: false })
     });
 
-    // 5. Nota interna
+    // 4. Nota interna
     await fetch(`${CHATWOOT_URL}/api/v1/accounts/${ACCOUNT_ID}/conversations/${convId}/messages`, {
       method: "POST",
       headers: { "api_access_token": CHATWOOT_TOKEN, "Content-Type": "application/json" },
@@ -74,7 +71,7 @@ export default async function handler(req, res) {
       })
     });
 
-    // 6. WhatsApp para o aluno
+    // 5. WhatsApp para o aluno
     const numeroAluno = whatsapp.replace(/\D/g, "").replace(/^0/, "55");
     if (numeroAluno.length >= 10) {
       await fetch(`${EVOLUTION_URL}/message/sendText/${encodeURIComponent(EVOLUTION_INSTANCE)}`, {
@@ -87,7 +84,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 7. WhatsApp para Ester
+    // 6. WhatsApp para Ester
     await fetch(`${EVOLUTION_URL}/message/sendText/${encodeURIComponent(EVOLUTION_INSTANCE)}`, {
       method: "POST",
       headers: { "apikey": EVOLUTION_KEY, "Content-Type": "application/json" },
@@ -100,7 +97,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error(err);
+    console.error("ERRO:", err.message);
     return res.status(500).json({ error: err.message });
   }
 }
