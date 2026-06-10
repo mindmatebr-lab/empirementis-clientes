@@ -363,17 +363,12 @@ async function submitForm(){
   const status=document.getElementById("send-status");
   btn.disabled=true;spinner.style.display="block";btnText.textContent="Enviando...";status.textContent="Preparando os dados...";
   try{
-    const docsB64=[];
-    for(const f of allFiles.docs.slice(0,3)){docsB64.push({name:f.name,data:await toBase64(f)});}
-    await emailjs.send("service_empirementis","template_estagio",{
-      to_email:"esterlima@empirementis.com",
-      aluno_nome:g("nome"),aluno_email:g("email-aluno"),aluno_whatsapp:g("whatsapp"),
-      resumo:buildSummary(),
-      arquivo1_nome:docsB64[0]?.name||"",arquivo1_data:docsB64[0]?.data||"",
-      arquivo2_nome:docsB64[1]?.name||"",arquivo2_data:docsB64[1]?.data||"",
-      arquivo3_nome:docsB64[2]?.name||"",arquivo3_data:docsB64[2]?.data||"",
-      total_docs:allFiles.docs.length,total_fotos:allFiles.fotos.length
-    });
+    const nome=g("nome");
+    const email=g("email-aluno");
+    const whatsapp=g("whatsapp");
+    const resumo=buildSummary();
+    status.textContent="Registrando suas informações...";
+    await enviarParaAPI({nome,email,whatsapp,resumo});
     document.getElementById("form-area").style.display="none";
     document.getElementById("success-screen").style.display="block";
     document.querySelector(".prog-fill").style.width="100%";
@@ -403,17 +398,12 @@ async function submitForm(){
   const status=document.getElementById("send-status");
   btn.disabled=true;spinner.style.display="block";btnText.textContent="Enviando...";status.textContent="Preparando os dados...";
   try{
-    const docsB64=[];
-    for(const f of allFiles.docs.slice(0,3)){docsB64.push({name:f.name,data:await toBase64(f)});}
-    await emailjs.send("service_empirementis","template_estagio",{
-      to_email:"esterlima@empirementis.com",
-      aluno_nome:g("nome"),aluno_email:g("email-aluno"),aluno_whatsapp:g("whatsapp"),
-      resumo:buildSummary(),
-      arquivo1_nome:docsB64[0]?.name||"",arquivo1_data:docsB64[0]?.data||"",
-      arquivo2_nome:docsB64[1]?.name||"",arquivo2_data:docsB64[1]?.data||"",
-      arquivo3_nome:docsB64[2]?.name||"",arquivo3_data:docsB64[2]?.data||"",
-      total_docs:allFiles.docs.length,total_fotos:allFiles.fotos.length
-    });
+    const nome=g("nome");
+    const email=g("email-aluno");
+    const whatsapp=g("whatsapp");
+    const resumo=buildSummary();
+    status.textContent="Registrando suas informações...";
+    await enviarParaAPI({nome,email,whatsapp,resumo});
     document.getElementById("form-area").style.display="none";
     document.getElementById("success-screen").style.display="block";
     document.querySelector(".prog-fill").style.width="100%";
